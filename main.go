@@ -6,7 +6,6 @@ import (
 	"belajarbwa/handler"
 	"belajarbwa/helper"
 	"belajarbwa/user"
-	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -36,8 +35,7 @@ func main() {
 	campaignService := campaign.NewService(campaignRepository)
 	// handler
 	userHandler := handler.NewUserHandler(userService, authService)
-	campaigns, _ := campaignService.FindCampaigns(1)
-	fmt.Println(len(campaigns))
+	campaignHandler := handler.NewCampaignHandler(campaignService)
 	// router
 	router := gin.Default()
 	// version 1
@@ -47,6 +45,8 @@ func main() {
 	api.POST("/sessions", userHandler.Login)
 	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
+
+	api.GET("/campaigns", campaignHandler.GetCampaigns)
 
 	router.Run()
 }
