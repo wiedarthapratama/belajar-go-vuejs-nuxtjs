@@ -153,7 +153,7 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, response)
 		return
 	}
-	// harusnya dapet dari jwt
+	// mendapatkan user sesuai token
 	currentUser := c.MustGet("currentUser").(user.User)
 	userID := currentUser.ID
 	// path gambar %d = userID %s = file.filename

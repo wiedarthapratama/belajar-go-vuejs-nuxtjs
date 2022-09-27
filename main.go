@@ -2,9 +2,11 @@ package main
 
 import (
 	"belajarbwa/auth"
+	"belajarbwa/campaign"
 	"belajarbwa/handler"
 	"belajarbwa/helper"
 	"belajarbwa/user"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -30,6 +32,16 @@ func main() {
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
 	userHandler := handler.NewUserHandler(userService, authService)
+	// campaign repository, service, handler
+	campaignRepository := campaign.NewRepository(db)
+	campaigns, err := campaignRepository.FindByUserID(1)
+	fmt.Println(len(campaigns))
+	for _, campaign := range campaigns {
+		fmt.Println(campaign.Name)
+		if len(campaign.CampaignImages) > 0 {
+			fmt.Println(campaign.CampaignImages[0].FileName)
+		}
+	}
 	// router
 	router := gin.Default()
 	// version 1
