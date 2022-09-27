@@ -1,6 +1,7 @@
 package main
 
 import (
+	"belajarbwa/auth"
 	"belajarbwa/handler"
 	"belajarbwa/user"
 	"log"
@@ -19,10 +20,12 @@ func main() {
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+	// auth
+	authService := auth.NewService()
 	// user repository, service, handler
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
-	userHandler := handler.NewUserHandler(userService)
+	userHandler := handler.NewUserHandler(userService, authService)
 	// router
 	router := gin.Default()
 	// version 1
