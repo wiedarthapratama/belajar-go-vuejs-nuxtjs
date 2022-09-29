@@ -72,7 +72,7 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 		// mapping apa aja ke object errors
 		errorMessage := gin.H{"errors": errors}
 		// format responsenya
-		response := helper.APIResponse("Email Checking Failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		response := helper.APIResponse("Failed to get Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
 		// response to json
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
@@ -92,5 +92,53 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 	}
 
 	response := helper.APIResponse("Success to create Campaign", http.StatusOK, "success", campaign.FormatCampaign(newCampaign))
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
+	var inputID campaign.GetCampaignDetailInput
+
+	err := c.ShouldBindUri(&inputID)
+	if err != nil {
+		// error to format error
+		errors := helper.FormatValidationError(err)
+		// mapping apa aja ke object errors
+		errorMessage := gin.H{"errors": errors}
+		// format responsenya
+		response := helper.APIResponse("Failed to update Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		// response to json
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	var inputData campaign.CreateCampaignInput
+
+	err = c.ShouldBindJSON(&inputData)
+	if err != nil {
+		// error to format error
+		errors := helper.FormatValidationError(err)
+		// mapping apa aja ke object errors
+		errorMessage := gin.H{"errors": errors}
+		// format responsenya
+		response := helper.APIResponse("Failed to update Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		// response to json
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	// mendapatkan user sesuai token
+	currentUser := c.MustGet("currentUser").(user.User)
+	inputData.User = currentUser
+
+	updatedCampaign, err := h.service.UpdateCampaign(inputID, inputData)
+	if err != nil {
+		// format responsenya
+		response := helper.APIResponse("Failed to update campaign", http.StatusBadRequest, "error", nil)
+		// response to json
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("Success to create Campaign", http.StatusOK, "success", campaign.FormatCampaign(updatedCampaign))
 	c.JSON(http.StatusOK, response)
 }
