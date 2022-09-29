@@ -38,6 +38,8 @@ func main() {
 	campaignHandler := handler.NewCampaignHandler(campaignService)
 	// router
 	router := gin.Default()
+	// biar images nya bisa di buka di url
+	router.Static("/images", "./images")
 	// version 1
 	api := router.Group("/api/v1")
 	// group users
@@ -47,6 +49,7 @@ func main() {
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 
 	api.GET("/campaigns", campaignHandler.GetCampaigns)
+	api.GET("/campaigns/:id", campaignHandler.GetCampaign)
 
 	router.Run()
 }
