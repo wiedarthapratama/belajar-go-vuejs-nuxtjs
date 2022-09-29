@@ -3,6 +3,7 @@ package handler
 import (
 	"belajarbwa/campaign"
 	"belajarbwa/helper"
+	"belajarbwa/user"
 	"net/http"
 	"strconv"
 
@@ -58,5 +59,38 @@ func (h *campaignHandler) GetCampaign(c *gin.Context) {
 	}
 
 	response := helper.APIResponse("Campaign detail", http.StatusOK, "success", campaign.FormatCampaignDetail(campaignDetail))
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) CreateCampaign(c *gin.Context) {
+	var input campaign.CreateCampaignInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil {
+		// error to format error
+		errors := helper.FormatValidationError(err)
+		// mapping apa aja ke object errors
+		errorMessage := gin.H{"errors": errors}
+		// format responsenya
+		response := helper.APIResponse("Email Checking Failed", http.StatusUnprocessableEntity, "error", errorMessage)
+		// response to json
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	// mendapatkan user sesuai token
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	newCampaign, err := h.service.CreateCampaign(input)
+	if err != nil {
+		// format responsenya
+		response := helper.APIResponse("Failed to create campaign", http.StatusBadRequest, "error", nil)
+		// response to json
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("Success to create Campaign", http.StatusOK, "success", campaign.FormatCampaign(newCampaign))
 	c.JSON(http.StatusOK, response)
 }
