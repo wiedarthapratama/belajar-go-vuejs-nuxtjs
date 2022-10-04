@@ -4,6 +4,7 @@ import (
 	"belajarbwa/campaign"
 	"belajarbwa/helper"
 	"belajarbwa/user"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -140,5 +141,59 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 	}
 
 	response := helper.APIResponse("Success to create Campaign", http.StatusOK, "success", campaign.FormatCampaign(updatedCampaign))
+	c.JSON(http.StatusOK, response)
+}
+
+func (h *campaignHandler) UploadImage(c *gin.Context) {
+	var input campaign.CreateCampaignImageInput
+	err := c.ShouldBind(&input)
+	if err != nil {
+		errors := helper.FormatValidationError(err)
+		errorMessage := gin.H{"errors": errors}
+
+		response := helper.APIResponse("format input anda masih salah", http.StatusBadRequest, "error", errorMessage)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		// mapping apa aja ke object errors
+		data := gin.H{"is_uploaded": false}
+		// format responsenya
+		response := helper.APIResponse("Gagal dalam upload file", http.StatusBadRequest, "error", data)
+		// response to json
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	path := fmt.Sprintf("images/%d-%s", input.User.ID, file.Filename)
+
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		data := gin.H{"is_uploaded": false}
+		response := helper.APIResponse("Gagal dalam menyimpan file", http.StatusBadRequest, "error", data)
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	_, err = h.service.SaveCampaignImage(input, path)
+	if err != nil {
+		// mapping apa aja ke object errors
+		data := gin.H{"is_uploaded": false}
+		// format responsenya
+		response := helper.APIResponse("Gagal dalam menyimpan data", http.StatusBadRequest, "error", data)
+		// response to json
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+	// mapping apa aja ke object errors
+	data := gin.H{"is_uploaded": true}
+	// format responsenya
+	response := helper.APIResponse("Campaign Images successfuly uploaded", http.StatusOK, "success", data)
+	// response to json
 	c.JSON(http.StatusOK, response)
 }
