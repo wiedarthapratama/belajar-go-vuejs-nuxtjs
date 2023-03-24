@@ -61,3 +61,37 @@ func (h *transactionHandler) GetUserTransactions(c *gin.Context) {
 	response := helper.APIResponse("User transactions", http.StatusOK, "success", transaction.FormatUserTransactions(transactions))
 	c.JSON(http.StatusOK, response)
 }
+
+func (h *transactionHandler) CreateTransaction(c *gin.Context) {
+	var input transaction.CreateTransactionInput
+
+	err := c.ShouldBindJSON(&input)
+
+	if err != nil {
+		// error to format error
+		errors := helper.FormatValidationError(err)
+		// mapping apa aja ke object errors
+		errorMessage := gin.H{"errors": errors}
+		// format responsenya
+		response := helper.APIResponse("Failed to create transaction", http.StatusUnprocessableEntity, "error", errorMessage)
+		// response to json
+		c.JSON(http.StatusUnprocessableEntity, response)
+		return
+	}
+
+	// mendapatkan user sesuai token
+	currentUser := c.MustGet("currentUser").(user.User)
+	input.User = currentUser
+
+	newTransaction, err := h.service.CreateTransaction(input)
+	if err != nil {
+		// format responsenya
+		response := helper.APIResponse("Failed to create campaign", http.StatusBadRequest, "error", nil)
+		// response to json
+		c.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := helper.APIResponse("Success to create Campaign", http.StatusOK, "success", newTransaction)
+	c.JSON(http.StatusOK, response)
+}

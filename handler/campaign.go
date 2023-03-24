@@ -73,7 +73,7 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 		// mapping apa aja ke object errors
 		errorMessage := gin.H{"errors": errors}
 		// format responsenya
-		response := helper.APIResponse("Failed to get Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
+		response := helper.APIResponse("Failed to create Campaign", http.StatusUnprocessableEntity, "error", errorMessage)
 		// response to json
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
