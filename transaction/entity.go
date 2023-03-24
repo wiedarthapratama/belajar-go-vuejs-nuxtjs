@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"belajarbwa/campaign"
 	"belajarbwa/user"
 	"time"
 )
@@ -15,4 +16,5 @@ type Transaction struct {
 	User       user.User
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+	Campaign   campaign.Campaign
 }
