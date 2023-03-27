@@ -52,7 +52,7 @@ func (s *service) CreateTransaction(input CreateTransactionInput) (Transaction, 
 	transaction.CampaignID = input.CampaignID
 	transaction.Amount = input.Amount
 	transaction.UserID = input.User.ID
-	transaction.Status = "pending "
+	transaction.Status = "pending"
 	// transaction.Code = ""
 	newTransaction, err := s.repository.Save(transaction)
 
@@ -73,7 +73,7 @@ func (s *service) CreateTransaction(input CreateTransactionInput) (Transaction, 
 
 	newTransaction.PaymentURL = paymentURL
 
-	newTransaction, err = s.repository.Update(transaction)
+	newTransaction, err = s.repository.Update(newTransaction)
 
 	if err != nil {
 		return newTransaction, err
