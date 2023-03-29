@@ -11,7 +11,8 @@ type Service interface {
 	GetPaymentURL(transaction Transaction, user user.User) (string, error)
 }
 
-type service struct{}
+type service struct {
+}
 
 func NewService() *service {
 	return &service{}
